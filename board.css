@@ -33,3 +33,14 @@ dialog{padding:22px;border:1px solid var(--line);border-radius:14px;max-height:9
  .architecture-image-link img{width:100%;min-width:900px;max-width:none}
  .architecture-figure figcaption{font-size:10px}
 }
+
+/* Strategy architecture revision switcher. No layout reordering of the strategic roadmap. */
+.architecture-version-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.architecture-version-switch{display:flex;align-items:center;gap:5px;padding:4px;border:1px solid var(--line);border-radius:10px;background:#eaf0ee}
+.architecture-version{border:0;border-radius:7px;background:transparent;color:var(--muted);font-size:12px;font-weight:550;padding:8px 13px;white-space:nowrap}
+.architecture-version.active{background:white;color:var(--teal);box-shadow:0 1px 5px #163a4315}
+.architecture-version:disabled{opacity:.53;cursor:default}
+.architecture-version-note{color:var(--muted);font-size:11px}
+.architecture-image-link:focus-visible,.architecture-version:focus-visible{outline:3px solid #ba8438;outline-offset:3px}
+@media(max-width:1050px){.nav-shell nav{min-width:0;overflow-x:auto;white-space:nowrap;scrollbar-width:none}.nav-shell nav::-webkit-scrollbar{display:none}.nav-shell nav a{flex-shrink:0}}
+@media(max-width:560px){.architecture-version{padding:7px 10px;font-size:11px}.architecture-version-bar{align-items:flex-start}.architecture-version-note{font-size:10px}}
