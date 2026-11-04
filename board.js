@@ -13,7 +13,7 @@
       const u = new URL(value);
       if (u.protocol !== 'https:' || u.username || u.password) return null;
       if (/^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(u.hostname)) return null;
-      if ([...u.searchParams.keys()].some(k=> /token|signature|sig|credential|secret|authorization/i.test(k))) return null;
+      if ([...u.searchParams.keys()].some(k=> /(?:^|[-_])(?:token|signature|sig|credential|secret|authorization|api[-_]?key|access[-_]?key)(?:$|[-_])/i.test(k))) return null;
       if (/(^|\.)github\.com$/.test(u.hostname) && /\/(blob|tree)\//.test(u.pathname) && asset) return null;
       return u.href;
     } catch { return null; }
