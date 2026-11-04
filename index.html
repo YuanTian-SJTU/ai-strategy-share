@@ -16,6 +16,29 @@
 </div></header>
 <main class="page">
 <section id="direction" aria-labelledby="direction-title"></section>
+<section id="architecture" aria-labelledby="architecture-title">
+  <div class="section-heading architecture-heading">
+    <div><p class="kicker">产品如何承载长期战略</p><h2 id="architecture-title">产品与技术架构</h2></div>
+    <span class="soft-label">当前技术架构示意 · 后续持续更新</span>
+  </div>
+  <figure class="architecture-figure">
+    <a class="architecture-image-link" href="./assets/product-technology-architecture.png" target="_blank" rel="noopener" aria-label="打开产品与技术架构原图">
+      <img id="architecture-image" src="./assets/product-technology-architecture.png" alt="AI原生经营空间产品与技术架构图：输入来源、应用体验层、决策智能层、治理与协同层，以及关键技术栈" decoding="async" hidden>
+      <div id="architecture-fallback" class="architecture-fallback" role="status">架构图区已设置好，当前图片尚待上传。上传后会在这里显示。</div>
+    </a>
+    <figcaption>技术架构示意图（2026年11月4日）。可点击打开大图，查看完整结构。</figcaption>
+  </figure>
+</section>
+<script>
+(function(){
+ const im=document.getElementById('architecture-image');
+ const fallback=document.getElementById('architecture-fallback');
+ if(!im||!fallback)return;
+ im.addEventListener('load',()=>{im.hidden=false;fallback.hidden=true;});
+ im.addEventListener('error',()=>{im.hidden=true;fallback.hidden=false;});
+ if(im.complete&&im.naturalWidth){im.hidden=false;fallback.hidden=true;}
+})();
+</script>
 <section id="roadmap" aria-labelledby="roadmap-title"></section>
 <section id="current" aria-labelledby="current-title"></section>
 <section id="product-media" aria-labelledby="media-title"></section>
