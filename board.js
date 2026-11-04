@@ -1,7 +1,7 @@
 'use strict';
 (() => {
   const $ = id => document.getElementById(id);
-  const S = window.HUB_STRATEGY, D = window.HUB_WEEKS, M = window.HUB_MEDIA;
+  const S = window.HUB_STRATEGY, D = window.HUB_WEEKS, M = window.HUB_MEDIA, C = window.HUB_SHARE_CONFIG ?? {};
   const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const nl = value => esc(value).replaceAll('\n','<br>');
   const date = value => /^\d{4}-\d{2}-\d{2}$/.test(value ?? '') ? value.replaceAll('-','.') : '待确认';
@@ -28,6 +28,8 @@
   };
   const icon = name => `<svg viewBox="0 0 24 24" aria-hidden="true">${iconPaths[name] ?? iconPaths.image}</svg>`;
   const details = (title, body, cls='mini-details') => `<details class="${cls}"><summary>${esc(title)}</summary>${body}</details>`;
+  const configuredPreviewURL = () => safeURL(C.livePreviewUrl);
+
   function renderStrategy() {
     return `<div class="hero"><div><p class="kicker">${esc(S.eyebrow)}</p><h1 id="direction-title">${nl(S.headline)}</h1><p class="lead">${esc(S.lead)}</p><div class="hero-footer"><span>长期方向 · 不随每日进展改变</span><a href="#current">直接看本周进展 ↓</a></div></div><div class="hero-side"><h2>企业是主体，线上与线下相互反馈</h2><div class="space-pair"><div class="space-item"><strong>线上经营空间</strong><span>信息、关系、探索<br>决策与协作</span></div><span class="space-arrow" aria-label="双向连接">⇄</span><div class="space-item"><strong>线下经营活动</strong><span>交易、履约<br>真实经营结果</span></div></div><p class="enterprise"><b>企业自身空间 ↔ 外部生态空间</b><br>保留经营主权，在清楚的边界内连接伙伴。</p><p class="hero-quote">${esc(S.promise)}</p></div></div>
     <div class="alive-section"><div class="minor-heading"><h2>什么是“活的系统”？</h2><span>不只是画面变化，而是三个层次</span></div><div class="alive-grid">${S.alive.map(a=>`<article class="alive-card"><div class="alive-top"><span class="icon-box">${icon(a.icon)}</span><span class="index">${esc(a.n)}</span></div><p class="kicker">${esc(a.eyebrow)}</p><h3>${nl(a.title)}</h3><p class="body">${esc(a.body)}</p>${details('进一步说明',`<p>${esc(a.detail)}</p>`)}</article>`).join('')}</div></div>
@@ -53,11 +55,13 @@
   function isApproved(batch,item){return batch?.approval==='approved' && item?.approved===true;}
   function renderMedia(w, archive=false) {
     const batch=M?.batches?.[w.id]??{},v=batch.video??{title:'看一段真实的操作过程',caption:'视频准备好后，在这里直接播放。'};
+    const live = !archive ? configuredPreviewURL() : null;
+    const liveFrame = live ? '<iframe class="live-preview-iframe" title="当前产品版本可操作预览" src="' + esc(live) + '" loading="eager" allow="fullscreen; clipboard-read; clipboard-write" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>' : null;
     const src=isApproved(batch,v)?safeURL(v.src,true):null;
     const poster=src?safeURL(v.poster,true):null, captions=src?safeURL(v.captions,true):null;
-    const vid=src?`<video controls playsinline preload="none"${poster?` poster="${esc(poster)}"`:''} aria-label="${esc(v.title)}" data-player="${esc(w.id)}"><source src="${esc(src)}" type="${/\.webm(?:\?|$)/i.test(src)?'video/webm':'video/mp4'}">${captions?`<track kind="captions" src="${esc(captions)}" srclang="zh" label="中文" default>`:''}<p>浏览器不能直接播放，<a href="${esc(src)}" target="_blank" rel="noopener noreferrer">打开视频文件</a>。</p></video><div class="media-error" role="status" hidden>视频暂时无法播放，请稍后再试。<br><a href="${esc(src)}" target="_blank" rel="noopener noreferrer">打开视频文件</a></div>`:placeholder('video','待补充本轮操作视频','收到并确认后，在本页直接播放');
+    const vid=liveFrame?liveFrame:src?`<video controls playsinline preload="none"${poster?` poster="${esc(poster)}"`:''} aria-label="${esc(live?'当前版本可操作预览':v.title)}" data-player="${esc(w.id)}"><source src="${esc(src)}" type="${/\.webm(?:\?|$)/i.test(src)?'video/webm':'video/mp4'}">${captions?`<track kind="captions" src="${esc(captions)}" srclang="zh" label="中文" default>`:''}<p>浏览器不能直接播放，<a href="${esc(src)}" target="_blank" rel="noopener noreferrer">打开视频文件</a>。</p></video><div class="media-error" role="status" hidden>视频暂时无法播放，请稍后再试。<br><a href="${esc(src)}" target="_blank" rel="noopener noreferrer">打开视频文件</a></div>`:(archive?placeholder('video','待补充本轮操作视频','收到并确认后，在本页直接播放'):placeholder('link','等待配置当前版本','在 share-config.js 填写 livePreviewUrl'));
     const images=batch.images??[];
-    return `<div class="media-stage"><div class="video-frame">${vid}</div><div class="video-side"><p class="kicker">用一段操作，把变化看清楚</p><h3>${esc(v.title)}</h3><p class="body">${esc(v.caption)}</p><span class="video-state">${src?`真实操作记录 · ${batch.capturedAt?date(batch.capturedAt.slice(0,10)):'拍摄日期见补充记录'}`:'本轮视频尚未提供'}</span><p class="player-note">点击播放，可暂停、拖动进度或全屏观看。视频不自动播放；实际产品以电脑端体验为主。</p>${src&&v.transcript?details('查看操作文字说明',`<p>${esc(v.transcript)}</p>`,'transcript'):''}</div></div><div class="gallery">${images.map((im,i)=>{
+    return `<div class="media-stage"><div class="video-frame">${vid}</div><div class="video-side"><p class="kicker">用一段操作，把变化看清楚</p><h3>${esc(v.title)}</h3><p class="body">${esc(live?'直接在这里点击、输入和追问当前 Cloudflare 版本。':v.caption)}</p><span class="video-state">${src?`真实操作记录 · ${batch.capturedAt?date(batch.capturedAt.slice(0,10)):'拍摄日期见补充记录'}`:'本轮视频尚未提供'}</span><p class="player-note">可以在这里直接操作当前版本，也可以在新窗口打开。实际产品以电脑端体验为主。</p>${src&&v.transcript?details('查看操作文字说明',`<p>${esc(v.transcript)}</p>`,'transcript'):''}</div></div><div class="gallery">${images.map((im,i)=>{
       const src=isApproved(batch,im)?safeURL(im.src,true):null;
       return `<figure class="shot"><div class="shot-frame">${src?`<button class="image-button" type="button" data-zoom="${esc(src)}" data-title="${esc(im.title)}" data-caption="${esc(im.caption)}" aria-label="放大查看：${esc(im.title)}"><img src="${esc(src)}" alt="${esc(im.alt??im.title)}" loading="lazy"><span>点击放大 ↗</span></button><div class="media-error" role="status" hidden>这张截图暂时无法载入。</div>`:placeholder('image','截图待补充','等本轮开发完成并确认可展示后填入')}</div><figcaption class="shot-caption"><span class="shot-number">画面 0${i+1}</span><h3>${esc(im.title)}</h3><p>${esc(im.caption)}</p></figcaption></figure>`;
     }).join('')}</div>${details('查看画面来源与展示说明',`<p>只有完成推送、确认可展示并检查隐私后的素材，才会填入这里。不使用旧版本图片充当本轮成果。</p><p>${batch.sourceCommit?'对应代码版本：'+esc(batch.sourceCommit):'当前未指定可展示的代码版本。'} ${batch.capturedAt?'拍摄时间：'+esc(batch.capturedAt):'当前未提供本轮截图或录屏。'}</p><p>${batch.dataMode==='demo'?'演示使用标明的样例数据，不代表真实行情、真实伙伴回应或实际交易。':'数据说明需随展示批次核对。'} 截图和视频辅助理解，不替代实际使用检查。</p>`,'media-source')}`;
@@ -69,8 +73,8 @@
     if(!S||!D?.weeks?.length||!M)throw Error('缺少页面内容文件');
     const w=D.weeks.find(x=>x.id===D.currentWeekId);if(!w)throw Error('未找到本周记录');
     $('direction').innerHTML=renderStrategy();$('roadmap').innerHTML=renderRoadmap();$('current').innerHTML=renderCurrent(w);
-    const preview=w.preview?.approved?safeURL(w.preview.url):null;
-    $('product-media').innerHTML=`<div class="section-heading"><div><p class="kicker">看产品，不只听描述</p><h2 id="media-title">这一版，实际是什么样</h2></div><div class="demo-link-wrap">${preview?`<a class="demo-link" href="${esc(preview)}" target="_blank" rel="noopener noreferrer">亲手体验当前版本 ↗</a>`:'<button class="demo-link" disabled type="button">体验链接待补充</button>'}</div></div><p class="media-note">产品以电脑端体验为主。先看真实截图和操作视频，也能了解本轮变化。</p>${renderMedia(w)}`;
+    const preview=configuredPreviewURL() ?? (w.preview?.approved?safeURL(w.preview.url):null);
+    $('product-media').innerHTML=`<div class="section-heading"><div><p class="kicker">看产品，不只听描述</p><h2 id="media-title">这一版，实际是什么样</h2></div><div class="demo-link-wrap">${preview?`<a class="demo-link" href="${esc(preview)}" target="_blank" rel="noopener noreferrer">亲手体验当前版本 ↗</a>`:'<button class="demo-link" disabled type="button">体验链接待补充</button>'}</div></div><p class="media-note">产品以电脑端体验为主。实时预览用于亲手体验当前版本，截图用于回看已经留存的产品变化。</p>${renderMedia(w)}`;
     const history=D.weeks.filter(x=>x.id!==w.id).sort((a,b)=>b.id.localeCompare(a.id));
     $('history-content').innerHTML=history.length?history.map(h=>`<details class="history-card"><summary><span>${esc(h.label)}</span><strong>${esc(h.title)}</strong></summary><div class="history-body"><p>${esc(h.summary)}</p>${records(h)}${renderMedia(h,true)}</div></details>`).join(''):'<div class="empty-history">当前还没有已归档的周记录。后续按时间由近到远排列，展开后可看当时的计划、画面、结果与反馈。</div>';
     $('build-note').textContent=`页面版本 V4 · 内容整理 ${date(D.contentDate)}`;
