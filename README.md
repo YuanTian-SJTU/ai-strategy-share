@@ -21,3 +21,18 @@ Cloudflare Quick Tunnel 是临时测试入口；本地 `cloudflared` 停止后�
 将最新经确认可展示的架构图上传到该路径（替换旧图片），提交 main 后 GitHub Pages 自动部署。
 桌面端整图显示，手机端保留原有桌面宽度供横向查看，点击图可打开原图。
 切勿上传敏感内部信息。图片没有上传时，页面显示占位提示，不假装已上线。
+
+## 架构图当前版与上一版切换
+
+顶部导航「产品与技术架构」跳转到战略与月计划之间的架构图区域。
+
+固定路径：
+- 当前：`assets/product-technology-architecture.png`
+- 上一版：`assets/product-technology-architecture-previous.png`
+
+更新步骤：
+1. 先把原来的当前架构图保存并上传为 `product-technology-architecture-previous.png`（保留真实旧版，不使用新图充当旧版）。
+2. 再把新的架构图上传并覆盖 `product-technology-architecture.png`。
+3. 提交到 main，等待 GitHub Pages 部署，刷新网页；必要时强制刷新图片缓存。
+
+页面默认打开当前版本；只有上一版文件存在并且可读取时，「上一版本」按钮才可以点击。没有旧图时显示「上一版本（待归档）」，不捏造历史版本。点击图片可在新标签打开原图；手机端可以横向滑动查看。更早版本可以通过 Git 提交历史追溯。
