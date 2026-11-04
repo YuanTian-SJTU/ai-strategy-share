@@ -6,5 +6,5 @@
  */
 window.HUB_SHARE_CONFIG = {
   // 例："https://abc123.trycloudflare.com"
-  livePreviewUrl: "https://remains-adams-christina-voted.trycloudflare.com"
+  livePreviewUrl: "https://doom-candidate-consensus-hospital.trycloudflare.com/"
 };
