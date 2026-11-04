@@ -11,7 +11,7 @@
 <a href="#current" class="skip">跳至本周进展</a>
 <header class="site-header"><div class="nav-shell">
 <a class="brand" href="#direction"><span class="brand-mark" aria-hidden="true">枢</span><span>决策中枢 · 你的数字经营空间<small>战略方向与产品进度看板</small></span></a>
-<nav aria-label="主要导航"><a href="#direction">战略方向</a><a href="#current">本周进展</a><a href="#product-media">直接试用当前产品</a><a href="#history">往周记录</a></nav>
+<nav aria-label="主要导航"><a href="#direction">战略方向</a><a href="#architecture">产品与技术架构</a><a href="#current">本周进展</a><a href="#product-media">直接试用当前产品</a><a href="#history">往周记录</a></nav>
 <button class="quiet-button desktop-action" type="button" id="copy-summary">复制本周摘要</button>
 </div></header>
 <main class="page">
@@ -19,24 +19,82 @@
 <section id="architecture" aria-labelledby="architecture-title">
   <div class="section-heading architecture-heading">
     <div><p class="kicker">产品如何承载长期战略</p><h2 id="architecture-title">产品与技术架构</h2></div>
-    <span class="soft-label">当前技术架构示意 · 后续持续更新</span>
+    <span class="soft-label">当前架构与上一个版本 · 持续更新</span>
+  </div>
+  <div class="architecture-version-bar">
+    <div class="architecture-version-switch" role="group" aria-label="切换产品与技术架构版本">
+      <button id="architecture-current" type="button" class="architecture-version active" aria-pressed="true">当前版本</button>
+      <button id="architecture-previous" type="button" class="architecture-version" aria-pressed="false" disabled>上一版本（待归档）</button>
+    </div>
+    <span id="architecture-version-note" class="architecture-version-note" role="status">正在加载当前架构图</span>
   </div>
   <figure class="architecture-figure">
-    <a class="architecture-image-link" href="./assets/product-technology-architecture.png" target="_blank" rel="noopener" aria-label="打开产品与技术架构原图">
-      <img id="architecture-image" src="./assets/product-technology-architecture.png" alt="AI原生经营空间产品与技术架构图：输入来源、应用体验层、决策智能层、治理与协同层，以及关键技术栈" decoding="async" hidden>
-      <div id="architecture-fallback" class="architecture-fallback" role="status">架构图区已设置好，当前图片尚待上传。上传后会在这里显示。</div>
+    <a class="architecture-image-link" id="architecture-open" href="./assets/product-technology-architecture.png" target="_blank" rel="noopener" aria-label="打开所选产品与技术架构原图">
+      <img id="architecture-image" src="./assets/product-technology-architecture.png" alt="AI 原生经营空间产品与技术架构图：输入来源、应用体验层、决策智能层、治理与协同层以及关键技术栈" decoding="async" hidden>
+      <div id="architecture-fallback" class="architecture-fallback" role="status">正在加载架构图…</div>
     </a>
-    <figcaption>当前产品与技术架构示意图。可点击打开大图，查看完整结构；后续将持续更新。</figcaption>
+    <figcaption id="architecture-caption">当前产品与技术架构。点击可打开完整大图，手机端可左右滑动查看。</figcaption>
   </figure>
 </section>
 <script>
 (function(){
- const im=document.getElementById('architecture-image');
- const fallback=document.getElementById('architecture-fallback');
- if(!im||!fallback)return;
- im.addEventListener('load',()=>{im.hidden=false;fallback.hidden=true;});
- im.addEventListener('error',()=>{im.hidden=true;fallback.hidden=false;});
- if(im.complete&&im.naturalWidth){im.hidden=false;fallback.hidden=true;}
+  const current = document.getElementById('architecture-current');
+  const previous = document.getElementById('architecture-previous');
+  const image = document.getElementById('architecture-image');
+  const fallback = document.getElementById('architecture-fallback');
+  const openLink = document.getElementById('architecture-open');
+  const caption = document.getElementById('architecture-caption');
+  const note = document.getElementById('architecture-version-note');
+  if(!current || !previous || !image || !fallback || !openLink || !caption || !note) return;
+  const versions = {
+    current: {src:'./assets/product-technology-architecture.png',title:'当前版本'},
+    previous: {src:'./assets/product-technology-architecture-previous.png',title:'上一版本'}
+  };
+  let selected='current';
+  function show(which){
+    if(which==='previous' && previous.disabled) return;
+    selected=which;
+    const version=versions[which];
+    current.classList.toggle('active',which==='current');
+    previous.classList.toggle('active',which==='previous');
+    current.setAttribute('aria-pressed',String(which==='current'));
+    previous.setAttribute('aria-pressed',String(which==='previous'));
+    openLink.href=version.src;
+    openLink.setAttribute('aria-label','打开'+version.title+'产品与技术架构原图');
+    image.alt=version.title+'：AI 原生经营空间产品与技术架构图';
+    caption.textContent=version.title+'的产品与技术架构示意。点击打开完整大图；手机端可左右滑动查看。';
+    note.textContent='正在加载'+version.title;
+    image.hidden=true;
+    fallback.hidden=false;
+    fallback.textContent='正在加载架构图…';
+    if(image.getAttribute('src')!==version.src) image.setAttribute('src',version.src);
+    else if(image.complete) updateImageState();
+  }
+  function updateImageState(){
+    const ok=image.naturalWidth>0;
+    image.hidden=!ok;
+    fallback.hidden=ok;
+    if(!ok) fallback.textContent='这份架构图尚未上传，请先将图片放入 assets 目录。';
+    note.textContent=ok ? versions[selected].title+' · 可点击查看原图' : versions[selected].title+' · 图片待上传';
+  }
+  image.addEventListener('load',updateImageState);
+  image.addEventListener('error',updateImageState);
+  current.addEventListener('click',()=>show('current'));
+  previous.addEventListener('click',()=>show('previous'));
+  const checkPrevious=new Image();
+  checkPrevious.onload=()=>{
+    previous.disabled=false;
+    previous.textContent='上一版本';
+    previous.title='查看上一版本架构图';
+  };
+  checkPrevious.onerror=()=>{
+    previous.disabled=true;
+    previous.textContent='上一版本（待归档）';
+    previous.title='尚未上传上一版本架构图';
+  };
+  checkPrevious.src=versions.previous.src;
+  show('current');
+  if(image.complete) updateImageState();
 })();
 </script>
 <section id="roadmap" aria-labelledby="roadmap-title"></section>
