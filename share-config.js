@@ -6,5 +6,5 @@
  */
 window.HUB_SHARE_CONFIG = {
   // 例："https://abc123.trycloudflare.com"
-  livePreviewUrl: "https://enrolled-largest-storage-dinner.trycloudflare.com/?build=2.4.0&home=1&revision=UI-LAUNCH-CONFIG-1&design=calm&atmosphere=2"
+  livePreviewUrl: "https://phillips-simon-ethics-nonprofit.trycloudflare.com/?build=2.4.0&home=1&revision=UI-LAUNCH-CONFIG-1&design=calm&atmosphere=2"
 };
